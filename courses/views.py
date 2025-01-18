@@ -1,14 +1,27 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+# from rest_framework.decorators import permission_classes
 from rest_framework import status
 from .models import Course
 from .serializers import CourseSerializer
 from .utils.utils import custom_response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+# class IsAdminUserPermission:
+#     """
+#     Custom permission to allow only admin users.
+#     """
+#     def has_permission(self, request, view):
+#         return request.user and request.user.is_staff
+    
 
 class CourseListView(APIView):
-    # Get all courses
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
-        print("Request data:", request)  
+        # print("Request data:", request)  
         courses = Course.objects.all()
         serializer = CourseSerializer(courses, many=True)
         response = custom_response(
@@ -19,6 +32,8 @@ class CourseListView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
     # Create a new course
+
+    # permission_classes = [IsAuthenticated, IsAdminUserPermission]
     def post(self, request):
         print("Request data:", request.data)  
         serializer = CourseSerializer(data=request.data)
@@ -40,6 +55,7 @@ class CourseListView(APIView):
 
 
 class CourseDetailView(APIView):
+    # permission_classes = [IsAuthenticated]
     # Get a single course
     def get(self, request, pk):
         print("Request data:", pk)  
@@ -62,6 +78,8 @@ class CourseDetailView(APIView):
     # Update a course
     # find ruby and get pyhton me data find karne ke liye karte hai ye   o rm method hai
     
+
+    # permission_classes = [IsAuthenticated, IsAdminUserPermission]
     def put(self, request, pk):
         try:
             course = Course.objects.get(pk=pk)
@@ -88,6 +106,9 @@ class CourseDetailView(APIView):
             return Response(response, status=status.HTTP_404_NOT_FOUND)
 
     # Delete a course
+
+
+    # permission_classes = [IsAuthenticated, IsAdminUserPermission]
     def delete(self, request, pk):
         try:
             course = Course.objects.get(pk=pk)
